@@ -1,3 +1,15 @@
+# Cairo
+env/
+nile/
+*.deployments.txt
+accounts.json
+contract/tests
+
+
+# Hardhat
+artifacts
+cache
+
 # Logs
 logs
 *.log
