@@ -1,0 +1,52 @@
+[
+    {
+        "inputs": [
+            {
+                "name": "_l1_address",
+                "type": "felt"
+            },
+            {
+                "name": "_starknet_address",
+                "type": "felt"
+            }
+        ],
+        "name": "constructor",
+        "outputs": [],
+        "type": "constructor"
+    },
+    {
+        "inputs": [
+            {
+                "name": "from_address",
+                "type": "felt"
+            },
+            {
+                "name": "token_id",
+                "type": "felt"
+            },
+            {
+                "name": "staked",
+                "type": "felt"
+            },
+            {
+                "name": "user_address",
+                "type": "felt"
+            },
+            {
+                "name": "environment",
+                "type": "felt"
+            },
+            {
+                "name": "size",
+                "type": "felt"
+            },
+            {
+                "name": "name",
+                "type": "felt"
+            }
+        ],
+        "name": "receive_message",
+        "outputs": [],
+        "type": "l1_handler"
+    }
+]

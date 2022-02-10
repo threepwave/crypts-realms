@@ -57,6 +57,9 @@ Starknet contracts end in `.cairo` and are housed in the `./contracts/starknet` 
 ## Installation
 1. Install hardhat and dependencies: `npm install`
 2. Install [starknet-devnet](https://github.com/Shard-Labs/starknet-devnet) local node: `pip install starknet-devnet`
+3. Install [cairo-lang](): `pip install cairo-lang`
+
+For all of these on one line: `npm install; pip install starknet-devnet; pip install cairo-lang`
 
 ## Build / Compile
 We use [`hardhat-starknet`](https://github.com/Shard-Labs/starknet-hardhat-plugin) to build and compile our Cairo contracts. 
