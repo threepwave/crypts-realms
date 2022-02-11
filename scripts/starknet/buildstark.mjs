@@ -37,8 +37,6 @@ const setTokenResponse = await cairoDungeon.invoke("set_dungeon", {
   name: NAME
 });
 
-// console.log(parseResponse(setTokenResponse))
-
 // Read dungeon metadata
 const getMetadata = await cairoDungeon.call('get_dungeon', {token_id: TOKEN_ID})
 console.log(getMetadata)
@@ -54,42 +52,3 @@ console.log(getName)
 // Get Size
 const getSize = await cairoDungeon.call('get_size', {token_id: TOKEN_ID})
 console.log(getSize)
-
-// console.log(`get_dungeon(): ${getTokenResponse.result}`); 
-
-/*
-// Read Owner
-const getOwnerResponse = await provider.callContract({
-  contract_address: CONTRACT_ADDRESS,
-  entry_point_selector: getSelectorFromName("get_owner"),
-  calldata: [TOKEN_ID]
-}) 
-
-console.log(`get_owner(): ${getOwnerResponse.result}`); 
-
-// Read Environment
-const getEnvironmentResponse = await provider.callContract({
-  contract_address: CONTRACT_ADDRESS,
-  entry_point_selector: getSelectorFromName("get_environment"),
-  calldata: [TOKEN_ID]
-}) 
-
-console.log(`get_environment(): ${getEnvironmentResponse.result}`); 
-
-// Read Size
-const getSizeResponse = await provider.callContract({
-  contract_address: CONTRACT_ADDRESS,
-  entry_point_selector: getSelectorFromName("get_size"),
-  calldata: [TOKEN_ID]
-}) 
-
-console.log(`get_size(): ${getSizeResponse.result}`); 
-
-// Read Name
-const getNameResponse = await provider.callContract({
-  contract_address: CONTRACT_ADDRESS,
-  entry_point_selector: getSelectorFromName("get_name"),
-  calldata: [TOKEN_ID]
-}) 
-console.log(shortString.decodeShortString(getNameResponse.result[0]))
-*/
