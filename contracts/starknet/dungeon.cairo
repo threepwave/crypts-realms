@@ -44,10 +44,11 @@ end
 @external
 func set_dungeon{
         syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr}(token_id : felt, address : felt, environment : felt, size : felt, name : felt):
+        range_check_ptr}(token_id : felt, owner_address : felt, environment : felt, size : felt, name : felt):
+        # range_check_ptr}(token_id : felt, environment : felt, size : felt, name : felt):
 
     # Set the owner of this dungeon
-    dungeon_owner.write(token_id, address)
+    dungeon_owner.write(token_id, owner_address)
     dungeon_environment.write(token_id, environment)
     dungeon_size.write(token_id, size)
     dungeon_name.write(token_id, name)

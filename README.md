@@ -54,6 +54,9 @@ Starknet uses the language 'Cairo' which is similar to Solidity but has its own 
 
 Starknet contracts end in `.cairo` and are housed in the `./contracts/starknet` folder.
 
+We use hardhat and the [starknet-hardhat-plugin](https://github.com/Shard-Labs/starknet-hardhat-plugin) to compile and deploy Cairo contracts.
+
+
 ## Installation
 1. Install hardhat and dependencies: `npm install`
 2. Install [starknet-devnet](https://github.com/Shard-Labs/starknet-devnet) local node: `pip install starknet-devnet`

@@ -33,7 +33,7 @@
                 "type": "felt"
             },
             {
-                "name": "address",
+                "name": "owner_address",
                 "type": "felt"
             },
             {
