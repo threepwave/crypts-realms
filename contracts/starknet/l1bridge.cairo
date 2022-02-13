@@ -62,7 +62,8 @@ end
 
 
 # @l1_handler   ## HACK - Remove this when we move to testnet/mainnet
-func receive_message{
+@external
+func receive_message {
         syscall_ptr : felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr}(
