@@ -38,6 +38,10 @@ end
 #   staked [0-1] - if '1' the user has staked a dungeon and if '0' the user has unstaked a dungeon
 #   user_address - The user's starknet address (required for stake but not unstake)
 
+
+# L1Bridge Constructor
+# l1_address: The address of our L1 contract that will be sending stake/unstake messages
+# starknet_address:  The address of our dungeons contract on starknet
 @constructor
 func constructor{
     syscall_ptr: felt*,
@@ -49,7 +53,7 @@ func constructor{
 ):
     
     # Initialize contracts
-    l1_address.write(_l1_address)   # Crypts and Caverns staking contraft on mainnet
+    l1_address.write(_l1_address)   # Crypts and Caverns staking contract on mainnet
     starknet_address.write(_starknet_address)   # dungeon.cairo contract on starknet
 
     return()
@@ -57,7 +61,7 @@ end
 
 
 
-@l1_handler
+# @l1_handler   ## HACK - Remove this when we move to testnet/mainnet
 func receive_message{
         syscall_ptr : felt*,
         pedersen_ptr: HashBuiltin*,
@@ -65,8 +69,8 @@ func receive_message{
         from_address : felt, token_id : felt, staked : felt, user_address : felt, environment : felt, size : felt, name : felt):
     
     # Make sure the message was sent by the intended L1 contract.
-    let (contract) = l1_address.read()
-    assert from_address = contract
+    let (staking_contract) = l1_address.read()
+    assert from_address = staking_contract
 
     # Instantiate the dungeon
     IDungeonContract.set_dungeon(
