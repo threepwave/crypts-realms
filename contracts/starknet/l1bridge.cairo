@@ -73,9 +73,11 @@ func receive_message {
     let (staking_contract) = l1_address.read()
     assert from_address = staking_contract
 
+    let (dungeon_address) = starknet_address.read()
+
     # Instantiate the dungeon
     IDungeonContract.set_dungeon(
-        contract_address=from_address,
+        contract_address=dungeon_address,
         token_id=token_id,
         address=user_address,
         environment=environment,

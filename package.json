@@ -10,7 +10,7 @@
     "node": "npx hardhat node",
     "starkcompile": "npx hardhat starknet-compile ./contracts/starknet --cairo-path ./contracts/starknet",
     "starkcompilewatch": "watch 'npm run starkcompile' ./contracts ./scripts",
-    "starkbuild": "node ./scripts/starknet/buildstark.mjs",
+    "starkbuild": "npm run starkcompile; node ./scripts/starknet/buildstark.mjs",
     "starkbuildwatch": "watch 'npm run starkbuild' ./contracts ./scripts",
     "starktest": "npx hardhat test",
     "starknode": "starknet-devnet"
