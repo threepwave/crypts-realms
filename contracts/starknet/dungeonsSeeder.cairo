@@ -14,6 +14,7 @@ from lib.swap_endianness import swap_endianness_64
 
 const TOP = 0xffffffffffffffff0000000000000000
 const BOTTOM = 0xffffffffffffffff
+const SHIFT = 0x10000000000000000
 
 # the following get_FOO functions are just simple indexes to a static
 # array; the array is defined using the `dw` instruction and accessed
@@ -429,18 +430,16 @@ func hash_uint256{range_check_ptr, bitwise_ptr : BitwiseBuiltin*}(input : Uint25
         out : Uint256):
     alloc_locals
 
-    # TODO: test
-
     # the input array for keccak256 has to be data split into 64 bit words
     # so here we build the those parts from two 128 bit words that make up
     # the Uint256 input; it's just some bit shifting using the stdlib
 
     let (t0) = bitwise_and(input.high, TOP)
-    let (w0, _) = unsigned_div_rem(t0, BOTTOM)
+    let w0 = t0 / SHIFT
     let (w1) = bitwise_and(input.high, BOTTOM)
 
     let (t2) = bitwise_and(input.low, TOP)
-    let (w2, _) = unsigned_div_rem(t2, BOTTOM)
+    let w2 = t2 / SHIFT
     let (w3) = bitwise_and(input.low, BOTTOM)
 
     let hash_data : felt* = alloc()
@@ -464,9 +463,9 @@ func hash_uint256{range_check_ptr, bitwise_ptr : BitwiseBuiltin*}(input : Uint25
     let (p3) = swap_endianness_64(hash[3], 8)
 
     # (p0 * (1 << 64)) + p1
-    let high = (p0 * 0x10000000000000000) + p1
+    let high = (p0 * SHIFT) + p1
     # (p2 * (1 << 64)) + p3
-    let low = (p2 * 0x10000000000000000) + p3
+    let low = (p2 * SHIFT) + p3
 
     let rnd : Uint256 = Uint256(low=low, high=high)
     return (rnd)
