@@ -429,8 +429,6 @@ func hash_uint256{range_check_ptr, bitwise_ptr : BitwiseBuiltin*}(input : Uint25
         out : Uint256):
     alloc_locals
 
-    # TODO: test
-
     # the input array for keccak256 has to be data split into 64 bit words
     # so here we build the those parts from two 128 bit words that make up
     # the Uint256 input; it's just some bit shifting using the stdlib

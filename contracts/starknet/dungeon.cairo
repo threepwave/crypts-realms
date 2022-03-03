@@ -1,114 +1,266 @@
 # Crypts and Caverns - 9000 on-chain generative dungeons.
 # Learn more: https://threepwave.com/cryptsandcaverns
-# dungeon.cairo - main contract containing dungeon metadata
+
+# SPDX-License-Identifier: MIT
+# based on
+# OpenZeppelin Cairo Contracts v0.1.0 (e9bbd8f)
 
 %lang starknet
-%builtins pedersen range_check
 
-from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
+from starkware.cairo.common.uint256 import Uint256
 
-#### Data Structure ####
-# token_id: [1, 9000] <- index
-# owner: address
-# environment: [0, 5]
-# size: [6, 25]z
-# name: string
+from lib.openzeppelin.erc721.library import (
+    ERC721_name,
+    ERC721_symbol,
+    ERC721_balanceOf,
+    ERC721_ownerOf,
+    ERC721_getApproved,
+    ERC721_isApprovedForAll,
+    ERC721_tokenURI,
 
-struct Dungeon:
-    # member token_id : felt    # [1, 9000] <- index which is not actually stored in the struct, just queried
-    member owner : felt         # address of owner
-    member environment : felt   # [0, 5]
-    member size : felt          # [6, 25]
-    member name : felt          # string
-end
+    ERC721_initializer,
+    ERC721_approve,
+    ERC721_setApprovalForAll,
+    ERC721_only_token_owner,
+    ERC721_setTokenURI
+)
 
-# owner - The token ID of the dungeon which is used as an index
-@storage_var
-func dungeon_owner(token_id : felt) -> (address : felt):
-end
+from lib.openzeppelin.erc721_enumerable.library import (
+    ERC721_Enumerable_initializer,
+    ERC721_Enumerable_totalSupply,
+    ERC721_Enumerable_tokenByIndex,
+    ERC721_Enumerable_tokenOfOwnerByIndex,
+    ERC721_Enumerable_mint,
+    ERC721_Enumerable_burn,
+    ERC721_Enumerable_transferFrom,
+    ERC721_Enumerable_safeTransferFrom
+)
 
-@storage_var
-func dungeon_environment(token_id : felt) -> (environment : felt):
-end
+from lib.openzeppelin.introspection.ERC165 import ERC165_supports_interface
 
-@storage_var
-func dungeon_size(token_id : felt) -> (size : felt):
-end
+from openzeppelin.access.ownable import (
+    Ownable_initializer,
+    Ownable_only_owner
+)
 
-# name - string with lengths 5->40  @TODO - Double check this length
-@storage_var
-func dungeon_name(token_id : felt) -> (nname : felt):
-end
+#
+# Constructor
+#
 
-# Set: Populates a dungeon owner's address by tokenId
-@external
-func set_dungeon{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr}(token_id : felt, owner_address : felt, environment : felt, size : felt, name : felt):
-        # range_check_ptr}(token_id : felt, environment : felt, size : felt, name : felt):
-
-    # Set the owner of this dungeon
-    dungeon_owner.write(token_id, owner_address)
-    dungeon_environment.write(token_id, environment)
-    dungeon_size.write(token_id, size)
-    dungeon_name.write(token_id, name)
-    
+@constructor
+func constructor{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(
+        name: felt,
+        symbol: felt,
+        owner: felt
+    ):
+    ERC721_initializer(name, symbol)
+    ERC721_Enumerable_initializer()
+    Ownable_initializer(owner)
     return ()
 end
 
-# Get: Reads the current metadata for a dungeon by tokenId
-@view
-func get_dungeon{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr}(token_id : felt) -> (dungeon : Dungeon):
-    
-    let (address) = dungeon_owner.read(token_id)
-    let (environment) = dungeon_environment.read(token_id)
-    let (size) = dungeon_size.read(token_id)
-    let (name) = dungeon_name.read(token_id)
+#
+# Getters
+#
 
-    let dungeon = Dungeon(
-        owner = address,
-        environment = environment,
-        size = size,
-        name = name)
-    return (dungeon)
+@view
+func totalSupply{
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    }() -> (totalSupply: Uint256):
+    let (totalSupply: Uint256) = ERC721_Enumerable_totalSupply()
+    return (totalSupply)
 end
 
-## Individual variable getters ##
-# Get: Reads the owner of a dungeon by tokenId
 @view
-func get_owner{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr}(token_id : felt) -> (address : felt):
-    let (address) = dungeon_owner.read(token_id)
-    return (address)
+func tokenByIndex{
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    }(index: Uint256) -> (tokenId: Uint256):
+    let (tokenId: Uint256) = ERC721_Enumerable_tokenByIndex(index)
+    return (tokenId)
 end
 
-# Get: Reads the environment of a dungeon by tokenId
 @view
-func get_environment{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr}(token_id : felt) -> (environment : felt):
-    let (environment) = dungeon_environment.read(token_id)
-    return (environment)
+func tokenOfOwnerByIndex{
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    }(owner: felt, index: Uint256) -> (tokenId: Uint256):
+    let (tokenId: Uint256) = ERC721_Enumerable_tokenOfOwnerByIndex(owner, index)
+    return (tokenId)
 end
 
-
-# Get: Reads the size of a dungeon by tokenId
 @view
-func get_size{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr}(token_id : felt) -> (size : felt):
-    let (size) = dungeon_size.read(token_id)
-    return (size)
+func supportsInterface{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(interfaceId: felt) -> (success: felt):
+    let (success) = ERC165_supports_interface(interfaceId)
+    return (success)
 end
 
-# Get: Reads the size of a dungeon by tokenId
 @view
-func get_name{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*,
-        range_check_ptr}(token_id : felt) -> (name : felt):
-    let (name) = dungeon_name.read(token_id)
+func name{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (name: felt):
+    let (name) = ERC721_name()
     return (name)
+end
+
+@view
+func symbol{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }() -> (symbol: felt):
+    let (symbol) = ERC721_symbol()
+    return (symbol)
+end
+
+@view
+func balanceOf{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(owner: felt) -> (balance: Uint256):
+    let (balance: Uint256) = ERC721_balanceOf(owner)
+    return (balance)
+end
+
+@view
+func ownerOf{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(tokenId: Uint256) -> (owner: felt):
+    let (owner: felt) = ERC721_ownerOf(tokenId)
+    return (owner)
+end
+
+@view
+func getApproved{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(tokenId: Uint256) -> (approved: felt):
+    let (approved: felt) = ERC721_getApproved(tokenId)
+    return (approved)
+end
+
+@view
+func isApprovedForAll{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr
+    }(owner: felt, operator: felt) -> (isApproved: felt):
+    let (isApproved: felt) = ERC721_isApprovedForAll(owner, operator)
+    return (isApproved)
+end
+
+@view
+func tokenURI{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(tokenId: Uint256) -> (tokenURI: felt):
+    let (tokenURI: felt) = ERC721_tokenURI(tokenId)
+    return (tokenURI)
+end
+
+#
+# Externals
+#
+
+@external
+func approve{
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    }(to: felt, tokenId: Uint256):
+    ERC721_approve(to, tokenId)
+    return ()
+end
+
+@external
+func setApprovalForAll{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(operator: felt, approved: felt):
+    ERC721_setApprovalForAll(operator, approved)
+    return ()
+end
+
+@external
+func transferFrom{
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    }(
+        _from: felt,
+        to: felt,
+        tokenId: Uint256
+    ):
+    ERC721_Enumerable_transferFrom(_from, to, tokenId)
+    return ()
+end
+
+@external
+func safeTransferFrom{
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    }(
+        _from: felt,
+        to: felt,
+        tokenId: Uint256,
+        data_len: felt,
+        data: felt*
+    ):
+    ERC721_Enumerable_safeTransferFrom(_from, to, tokenId, data_len, data)
+    return ()
+end
+
+@external
+func mint{
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    }(to: felt, tokenId: Uint256):
+    Ownable_only_owner()
+    ERC721_Enumerable_mint(to, tokenId)
+    return ()
+end
+
+@external
+func burn{
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    }(tokenId: Uint256):
+    ERC721_only_token_owner(tokenId)
+    ERC721_Enumerable_burn(tokenId)
+    return ()
+end
+
+@external
+func setTokenURI{
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr: felt*,
+        range_check_ptr
+    }(tokenId: Uint256, tokenURI: felt):
+    Ownable_only_owner()
+    ERC721_setTokenURI(tokenId, tokenURI)
+    return ()
 end
